@@ -27,6 +27,7 @@ function scrapDataForJs() {
     request(githubReposListUrl, function (err, res, html) {
       if (!err) {
         var rep = getListFromHtml(html);
+        createNeededJsonFromArray(rep);
         resolve(rep);
       } else {
         reject(err);
@@ -37,22 +38,22 @@ function scrapDataForJs() {
   })
 }
 
-function getTrendsForAllLanguages(){
-  var timeLine =['daily','weekly','monthly'];
-  var allTrendsPromiseList=[];
-  var allTrendsList=[];
+function getTrendsForAllLanguages() {
+  var timeLine = ['daily', 'weekly', 'monthly'];
+  var allTrendsPromiseList = [];
+  var allTrendsList = [];
   var rep;
-  return new Promise((resolve,reject)=>{
-    for(var i=0;i<3;i++){
-      var promise = new Promise((reso,rej)=>{
+  return new Promise((resolve, reject) => {
+    for (var i = 0; i < 3; i++) {
+      var promise = new Promise((reso, rej) => {
         var url = `https://github.com/trending?since=${timeLine[i]}`;
 
-        request(url,(err,res,html)=>{
-          if(!err){
+        request(url, (err, res, html) => {
+          if (!err) {
             rep = getListFromHtml(html);
             allTrendsList.push(rep);
             reso(rep);
-          } else{
+          } else {
             rej(err);
           }
         })
@@ -95,22 +96,14 @@ function insertValue(reposList) {
   });
 }
 
-function getStarredReposList(){
+function getStarredReposList() {
   return new Promise((resolve, reject) => {
     const githubReposListUrl = 'https://github.com/search?p=1&q=stars%3A%3E1&type=Repositories&utf8=%E2%9C%93';
     request(githubReposListUrl, function (err, res, html) {
       if (!err) {
         var rep = getListFromHtml(html);
         rep.shift();
-        rep.map((x,i,a)=>{
-          const repo = x.split('/');
-          const repoName = repo[1];
-          const content = x;
-          a[i] ={};
-          a[i]['name'] = repoName;
-          a[i]['url'] = `https://github.com/${x}` 
-        })
-        console.log(rep);
+        createNeededJsonFromArray(rep);
         resolve(rep);
       } else {
         reject(err);
@@ -120,29 +113,29 @@ function getStarredReposList(){
   })
 }
 
-getStarredReposList().then((x)=>{
+getStarredReposList().then((x) => {
   console.log(x);
-}).catch(err=>{
+}).catch(err => {
   console.log(err);
 })
 
 app.get('/displayData', (req, res) => {
-  var allLists =[];
-  scrapDataForJs().then((repos)=>{
+  var allLists = [];
+  scrapDataForJs().then((repos) => {
     allLists.push(repos);
     return getTrendsForAllLanguages();
-  }).then((allTrendsList)=>{
+  }).then((allTrendsList) => {
     allLists.push(allTrendsList);
     return getStarredReposList();
-  }).then((starredList)=>{
+  }).then((starredList) => {
     allLists.push(starredList);
-    res.render('displayData',{jsList:allLists[0],trendsList:allLists[1],starredList:allLists[2]});
-  }).catch((err)=>{
+    res.render('displayData', { jsList: allLists[0], trendsList: allLists[1], starredList: allLists[2] });
+  }).catch((err) => {
     console.log(err);
   })
 });
 
-function getListFromHtml(html){
+function getListFromHtml(html) {
   let $ = cheerio.load(html);
   let repos = $("h3");
   let reposData = repos.text();
@@ -158,6 +151,17 @@ function getListFromHtml(html){
   return rep;
 }
 
+
+function createNeededJsonFromArray(array) {
+  array.map((x, i, a) => {
+    const repo = x.split('/');
+    const repoName = repo[1];
+    const content = x;
+    a[i] = {};
+    a[i]['name'] = repoName;
+    a[i]['url'] = `https://github.com/${x}`
+  });
+}
 app.listen(4000, () => {
   console.log('listening at port 4000');
 })
