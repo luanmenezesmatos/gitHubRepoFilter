@@ -102,6 +102,15 @@ function getStarredReposList(){
       if (!err) {
         var rep = getListFromHtml(html);
         rep.shift();
+        rep.map((x,i,a)=>{
+          const repo = x.split('/');
+          const repoName = repo[1];
+          const content = x;
+          a[i] ={};
+          a[i]['name'] = repoName;
+          a[i]['url'] = `https://github.com/${x}` 
+        })
+        console.log(rep);
         resolve(rep);
       } else {
         reject(err);
@@ -111,6 +120,12 @@ function getStarredReposList(){
   })
 }
 
+getStarredReposList().then((x)=>{
+  console.log(x);
+}).catch(err=>{
+  console.log(err);
+})
+
 app.get('/displayData', (req, res) => {
   var allLists =[];
   scrapDataForJs().then((repos)=>{
@@ -118,7 +133,6 @@ app.get('/displayData', (req, res) => {
     return getTrendsForAllLanguages();
   }).then((allTrendsList)=>{
     allLists.push(allTrendsList);
-    console.log(allLists.length);
     return getStarredReposList();
   }).then((starredList)=>{
     allLists.push(starredList);
