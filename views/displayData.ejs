@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <select id="dropd" onchange="displayData(this.value)" style="float: left">
+    <option value="0">Today</option>
+    <option value="1">This Week</option>
+    <option value="2">This Month</option>
+  </select>
+  
+  <table id="displayTable" style="float: left">
+      <tr>
+        <th>Id</th>
+        <th>All Languages Trending Repos</th>
+      </tr>
+
+      <% for (var i = 0; i < trendsList[0].length; i++) { %>
+        <tr>
+          <td>
+            <%=i+1%>
+          </td>
+          <td>
+            <%=trendsList[0][i]%>
+          </td>
+        </tr>
+        <% } %>
+  </table>
+
+  <table style="float: left">
+    <tr>
+      <th>Id</th>
+      <th>Js Trending Repos</th>
+    </tr>
+
+    <% for (var i = 0; i < jsList.length;i++) { %>
+      <tr>
+        <td>
+          <%=i+1%>
+        </td>
+        <td>
+          <%=jsList[i]%>
+        </td>
+      </tr>
+      <% } %>
+  </table>
+
+  <table style="float: left">
+      <tr>
+        <th>Id</th>
+        <th>Starred Repos</th>
+      </tr>
+  
+      <% for (var i = 0; i < starredList.length;i++) { %>
+        <tr>
+          <td>
+            <%=i+1%>
+          </td>
+          <td>
+            <%=starredList[i]%>
+          </td>
+        </tr>
+        <% } %>
+    </table>
+</body>
+
+<script>
+  var e = document.getElementById("dropd");
+  var strUser = e.options[e.selectedIndex].value;
+  console.log(strUser);
+</script>
+
+</html>
